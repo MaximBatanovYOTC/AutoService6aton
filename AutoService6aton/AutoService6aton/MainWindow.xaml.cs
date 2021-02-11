@@ -1,5 +1,4 @@
-﻿using AutoService6aton.windows;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -21,29 +20,8 @@ namespace AutoService6aton
     /// <summary>
     /// Логика взаимодействия для MainWindow.xaml
     /// </summary>
-    //
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
-        private List<Service> _ServiceList;
-        public List<Service> ServiceList
-        {
-            get
-            {
-                var FilteredServiceList = _ServiceList.FindAll(item =>
-                item.DiscountFloat >= CurrentDiscountFilter.Item1 &&
-                item.DiscountFloat < CurrentDiscountFilter.Item2);
-                if (SortPriceAscending)
-                    return FilteredServiceList
-                        .OrderBy(item => Double.Parse(item.CostWithDiscount))
-                        .ToList();
-                else
-                    return FilteredServiceList
-                        .OrderByDescending(item => Double.Parse(item.CostWithDiscount))
-                        .ToList();
-
-            }
-            set { _ServiceList = value; }
-        }
         public MainWindow()
         {
             InitializeComponent();
@@ -54,8 +32,26 @@ namespace AutoService6aton
         {
             Application.Current.Shutdown();
         }
+        private List<Service> _ServiceList;
+        public List<Service> ServiceList
+        {
+            get
+            {
+                var FilteredServiceList = _ServiceList.FindAll(item =>
+    item.DiscountFloat >= CurrentDiscountFilter.Item1 &&
+    item.DiscountFloat < CurrentDiscountFilter.Item2);
+                if (SearchFilter != "")
+                    FilteredServiceList = FilteredServiceList.Where(item =>
+                        item.Title.IndexOf(SearchFilter, StringComparison.OrdinalIgnoreCase) != -1 ||
+                        item.DescriptionString.IndexOf(SearchFilter, StringComparison.OrdinalIgnoreCase) != -1).ToList();
 
-
+                if (SortPriceAscending)
+                    return FilteredServiceList.OrderBy(item => Double.Parse(item.CostWithDiscount)).ToList();
+                else
+                    return FilteredServiceList.OrderByDescending(item => Double.Parse(item.CostWithDiscount)).ToList();
+            }
+            set { _ServiceList = value; }
+        }
         private Boolean _IsAdminMode = false;
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -83,8 +79,6 @@ namespace AutoService6aton
                 return "Войти в режим\nАдминистратора";
             }
         }
-
-
         private void AdminButton_Click(object sender, RoutedEventArgs e)
         {
             // если мы уже в режиме Администратора, то выходим из него 
@@ -92,7 +86,7 @@ namespace AutoService6aton
             else
             {
                 // создаем окно для ввода пароля
-                var InputBox = new InputBoxWindow("Введите пароль Администратора");
+                var InputBox = new windows.InputBoxWindow("Введите пароль Администратора");
                 // и показываем его как диалог (модально)
                 if ((bool)InputBox.ShowDialog())
                 {
@@ -101,8 +95,6 @@ namespace AutoService6aton
                 }
             }
         }
-
-
         public string AdminVisibility
         {
             get
@@ -128,18 +120,15 @@ namespace AutoService6aton
         {
             SortPriceAscending = (sender as RadioButton).Tag.ToString() == "1";
         }
-
-
-        private List<Tuple<string, double, double>> FilterByDiscountValuesList =
-        new List<Tuple<string, double, double>>() {
-        Tuple.Create("Все записи", 0d, 1d),
-        Tuple.Create("от 0% до 5%", 0d, 0.05d),
-        Tuple.Create("от 5% до 15%", 0.05d, 0.15d),
-        Tuple.Create("от 15% до 30%", 0.15d, 0.3d),
-        Tuple.Create("от 30% до 70%", 0.3d, 0.7d),
-        Tuple.Create("от 70% до 100%", 0.7d, 1d)
-        };
-
+        private List<Tuple<string, float, float>> FilterByDiscountValuesList =
+              new List<Tuple<string, float, float>>() {
+        Tuple.Create("Все записи", 0f, 1f),
+        Tuple.Create("от 0% до 5%", 0f, 0.05f),
+        Tuple.Create("от 5% до 15%", 0.05f, 0.15f),
+        Tuple.Create("от 15% до 30%", 0.15f, 0.3f),
+        Tuple.Create("от 30% до 70%", 0.3f, 0.7f),
+        Tuple.Create("от 70% до 100%", 0.7f, 1f)
+    };
         public List<string> FilterByDiscountNamesList
         {
             get
@@ -149,10 +138,9 @@ namespace AutoService6aton
                     .ToList();
             }
         }
+        private Tuple<float, float> _CurrentDiscountFilter = Tuple.Create(float.MinValue, float.MaxValue);
 
-        private Tuple<double, double> _CurrentDiscountFilter = Tuple.Create(double.MinValue, double.MaxValue);
-
-        public Tuple<double, double> CurrentDiscountFilter
+        public Tuple<float, float> CurrentDiscountFilter
         {
             get
             {
@@ -168,13 +156,31 @@ namespace AutoService6aton
                 }
             }
         }
-
         private void DiscountFilterComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             CurrentDiscountFilter = Tuple.Create(
                 FilterByDiscountValuesList[DiscountFilterComboBox.SelectedIndex].Item2,
                 FilterByDiscountValuesList[DiscountFilterComboBox.SelectedIndex].Item3
             );
+        }
+        private string _SearchFilter = "";
+        public string SearchFilter
+        {
+            get { return _SearchFilter; }
+            set
+            {
+                _SearchFilter = value;
+                if (PropertyChanged != null)
+                {
+                    // при изменении фильтра список перерисовывается
+                    PropertyChanged(this, new PropertyChangedEventArgs("ServiceList"));
+                }
+            }
+        }
+
+        private void TextBox_KeyUp(object sender, KeyEventArgs e)
+        {
+            SearchFilter = SearchFilterTextBox.Text;
         }
 
         private void DataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)

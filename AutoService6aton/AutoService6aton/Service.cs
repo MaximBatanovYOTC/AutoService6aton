@@ -21,7 +21,7 @@ namespace AutoService6aton
             this.ClientService = new HashSet<ClientService>();
             this.ServicePhoto = new HashSet<ServicePhoto>();
         }
-    
+
         public int ID { get; set; }
         public string Title { get; set; }
         public decimal Cost { get; set; }
@@ -29,7 +29,7 @@ namespace AutoService6aton
         public string Description { get; set; }
         public Nullable<double> Discount { get; set; }
         public string MainImagePath { get; set; }
-    
+
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<ClientService> ClientService { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
@@ -45,16 +45,8 @@ namespace AutoService6aton
         {
             get
             {
+                // тут должно быть понятно - преобразование в строку с нужной точностью
                 return Cost.ToString("#.##");
-            }
-        }
-        public string DiscountString
-        {
-            get
-            {
-                string s2 = (Discount * 100).ToString();
-                string s1 = "%";
-                return s2 + s1;
             }
         }
 
@@ -62,32 +54,45 @@ namespace AutoService6aton
         {
             get
             {
-                return (Cost * Convert.ToDecimal(1 - Discount ?? 0)).ToString("#.##");
+                // Convert.ToDecimal - преобразует double в decimal
+                // Discount ?? 0 - разнуливает "Nullable" переменную
+                var DiscountValue = Discount ?? 0;
+                var CostString = (Cost * Convert.ToDecimal(1 - DiscountValue)).ToString("#.##");
+                if (CostString == "") return "0";
+                return CostString;
             }
         }
+
+        // ну и сразу пишем геттер на наличие скидки
         public Boolean HasDiscount
         {
             get
             {
-                return Discount == 0;
+                return Discount > 0;
             }
         }
+
+        // и перечёркивание старой цены
         public string CostTextDecoration
         {
             get
             {
-                return HasDiscount ? "None" : "Strikethrough";
+                return HasDiscount ? "Strikethrough" : "None";
             }
         }
-
-        public double DiscountFloat
+        public float DiscountFloat
         {
             get
             {
                 return Convert.ToSingle(Discount ?? 0);
             }
         }
-
+        public string DescriptionString
+        {
+            get
+            {
+                return Description ?? "";
+            }
+        }
     }
 }
-
