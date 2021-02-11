@@ -4,11 +4,11 @@
 winexe
 C#
 .cs
-C:\Users\User\Source\Repos\MaximBatanovYOTC\AutoService6aton\AutoService6aton\AutoService6aton\obj\Debug\
+C:\Users\User\Source\Repos\MaximBatanovYOTC\AutoService6aton\AutoService6aton\AutoService6aton\obj\Release\
 AutoService6aton
 none
 false
-DEBUG;TRACE
+TRACE
 C:\Users\User\Source\Repos\MaximBatanovYOTC\AutoService6aton\AutoService6aton\AutoService6aton\App.xaml
 2-1983797629
 3-1201762661
@@ -16,5 +16,5 @@ C:\Users\User\Source\Repos\MaximBatanovYOTC\AutoService6aton\AutoService6aton\Au
 18578993451
 MainWindow.xaml;windows\InputBoxWindow.xaml;
 
-False
+True
 

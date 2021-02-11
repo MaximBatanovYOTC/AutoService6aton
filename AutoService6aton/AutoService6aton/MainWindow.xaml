@@ -4,42 +4,42 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AutoService6aton"
-        mc:Ignorable="d"    
+        mc:Ignorable="d"
         FontFamily="Arial Black"
-        Title="Услуги авто сервиса" 
         x:Name="Root"
+        Title="Услуги авто сервиса"
         MinHeight="300" MinWidth="300"
-    Height="450" Width="1000">
+        Height="450" Width="1100">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="150"/>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="1*"/>
         </Grid.ColumnDefinitions>
-        <Image 
-        Margin="5"
-        Source="./images/service_logo.png" 
-        VerticalAlignment="Top"/>
-        <StackPanel
+        <StackPanel 
+            
             Orientation="Vertical"
-            Margin="5,0,5,5"
+            Margin="5"
             VerticalAlignment="Bottom">
             <Button
-            Content="Добавить услугу"
-             Visibility="{Binding AdminVisibility}"
-            />
+                Content="Добавить услугу"
+                Visibility="{Binding AdminVisibility}"/>
             <Button
                 Content="{Binding AdminModeCaption}"
-                 Name="AdminButton"
-                Click="AdminButton_Click"/>
+                Name="AdminButton"
+                Click="AdminButton_Click"
+                Height="16"/>
             <Button 
                 x:Name="ExitButton"
-                Content="Выход"         
-                Click="ExitButton_Click"/>
-            
+                Content="Выход"
+                Click="ExitButton_Click"
+                Style="{StaticResource BrownButtonStyle}"/>
         </StackPanel>
+        <Image 
+        Source="./images/service_logo.png"
+        VerticalAlignment="Top"/>
         <StackPanel 
-    Orientation="Vertical" 
-    VerticalAlignment="Center">
+            Orientation="Vertical" 
+            VerticalAlignment="Center">
             <Label Content="Цена: "/>
             <RadioButton 
         GroupName="Price"
@@ -54,22 +54,29 @@
         Content="по убыванию" 
         Checked="RadioButton_Checked"
         VerticalContentAlignment="Center"/>
+
+            <Label Content="Фильтр по скидке: "
+        Margin="10,0,0,0"
+        VerticalAlignment="Center"/>
+            <ComboBox
+         Name="DiscountFilterComboBox"
+         SelectedIndex="0"
+        SelectionChanged="DiscountFilterComboBox_SelectionChanged"
+        ItemsSource="{Binding FilterByDiscountNamesList}"/>
         </StackPanel>
-        <Image 
-        Margin="5,5,5,0"
-        Source="service_logo.ico" 
-        VerticalAlignment="Top"/>
+        
+
         <DataGrid 
-    Grid.Column="1"
-    CanUserAddRows="false"
-    AutoGenerateColumns="False"
-    ItemsSource="{Binding ServiceList}" SelectionChanged="DataGrid_SelectionChanged">
+            Grid.Column="1"
+            ItemsSource="{Binding ServiceList}"
+             CanUserAddRows="false"
+             AutoGenerateColumns="False" SelectionChanged="DataGrid_SelectionChanged">
             <DataGrid.RowStyle>
                 <Style TargetType="DataGridRow">
                     <Style.Triggers>
                         <DataTrigger 
                 Binding="{Binding HasDiscount}" 
-                Value="True">
+                Value="False">
                             <Setter 
                     Property="Background" 
                     Value="LightGreen"/>
@@ -78,69 +85,76 @@
                 </Style>
             </DataGrid.RowStyle>
             <DataGrid.Columns>
-                <!-- колонкам я задаю фиксированную ширину, чтобы они не ёрзали при прокрутке -->
                 <DataGridTextColumn
             Width="250"
             Header="Наименование услуги"
             Binding="{Binding Title}"/>
                 <DataGridTemplateColumn 
-                Width="100"
-                Header="Стоимость">
+            Width="100"
+            Header="Стоимость">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <!-- TextBlock поддерживает перечеркивание -->
                             <TextBlock 
-                TextDecorations="{Binding CostTextDecoration}"
-                Text="{Binding CostString}"/>
+                            TextDecorations="{Binding CostTextDecoration}"
+                            Text="{Binding CostString}"/>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTextColumn     
-            Width="150"
-            Header="Продолжительность"
-            Binding="{Binding DurationInSeconds}"/>
+
+
+                <DataGridTextColumn 
+                    Width="150"
+                    Header="Продолжительность"
+                    Binding="{Binding DurationInSeconds}"/>
                 <DataGridTemplateColumn 
-            Width="88"
-            Header="картинки">
+                    Width="80"
+                    Header="Картинки">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <!-- для отображения изображения использую геттер, который определен в МОДЕЛИ Service -->
                             <Image 
-                        Height="80" 
-                        Width="80" 
-                        Source="{Binding ImageUri}" />
+                                Height="64" 
+                                Width="64" 
+                                Source="{Binding ImageUri}" />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
+
+
                 <DataGridTextColumn 
             Width="60"
             Header="Скидка"
-            Binding="{Binding Discount}"/>
+            Binding="{Binding DiscountString}"/>
                 <DataGridTextColumn 
-            Width="200"
-            Header="Цена со скидкой"
+            Width="170"
+            Header="Стоимость со скидкой"
             Binding="{Binding CostWithDiscount}"/>
+
+
                 <DataGridTemplateColumn
-    Header="Действия">
+                Header="Действия">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <StackPanel 
-                Visibility="{Binding DataContext.AdminVisibility, ElementName=Root}"
-                Orientation="Horizontal">
+                            Visibility="{Binding DataContext.AdminVisibility, ElementName=Root}"
+                            Orientation="Horizontal">
                                 <Button 
-                        Content="Редактировать" 
-                        Name="EditButton" 
-                        />
+                                Content="Редактировать" 
+                                Name="EditButton"/>
                                 <Button 
-                        Content="Удалить" 
-                        Name="DeleteButton" 
-                        />
+                                Content="Удалить" 
+                                Name="DeleteButton"/>
                             </StackPanel>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
+
+
             </DataGrid.Columns>
-           
+
+
+
         </DataGrid>
+
     </Grid>
+
 </Window>

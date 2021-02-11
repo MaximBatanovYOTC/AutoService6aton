@@ -1,9 +1,10 @@
-﻿using System;
+﻿using AutoService6aton.windows;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using AutoService6aton.windows;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -13,93 +14,48 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using System.ComponentModel;
+
 
 namespace AutoService6aton
 {
-    public partial class Service
+    /// <summary>
+    /// Логика взаимодействия для MainWindow.xaml
+    /// </summary>
+    //
+    public partial class MainWindow : Window, INotifyPropertyChanged
     {
-        public Uri ImageUri
+        private List<Service> _ServiceList;
+        public List<Service> ServiceList
         {
             get
             {
-                return new Uri(System.IO.Path.Combine(Environment.CurrentDirectory, MainImagePath));
-            }
-        }
-    
-    public string CostString
-        {
-            get
-            {
-                // тут должно быть понятно - преобразование в строку с нужной точностью
-                return Cost.ToString("#.##");
-            }
-        }
-
-        public string CostWithDiscount
-        {
-            get
-            {
-                // Convert.ToDecimal - преобразует double в decimal
-                // Discount ?? 0 - разнуливает "Nullable" переменную
-                return (Cost * Convert.ToDecimal(1 - Discount ?? 0)).ToString("#.##");
-            }
-        }
-
-        // ну и сразу пишем геттер на наличие скидки
-        public Boolean HasDiscount
-        {
-            get
-            {
-                return Discount > 0;
-            }
-        }
-
-        // и перечёркивание старой цены
-        public string CostTextDecoration
-        {
-            get
-            {
-                return HasDiscount ? "None" : "Strikethrough";
-            }
-        }
-}
-
-
-        public partial class MainWindow : Window, INotifyPropertyChanged
-    {
-            public MainWindow()
-            {
-                InitializeComponent();
-                this.DataContext = this;     
-                ServiceList = Core.DB.Service.ToList();
-
-            }
-            private void ExitButton_Click(object sender, RoutedEventArgs e)
-            {
-                Application.Current.Shutdown();
-            }
-            private List<Service> _ServiceList;
-            public List<Service> ServiceList
-            {
-            get
-            {
+                var FilteredServiceList = _ServiceList.FindAll(item =>
+                item.DiscountFloat >= CurrentDiscountFilter.Item1 &&
+                item.DiscountFloat < CurrentDiscountFilter.Item2);
                 if (SortPriceAscending)
-                    return _ServiceList
+                    return FilteredServiceList
                         .OrderBy(item => Double.Parse(item.CostWithDiscount))
                         .ToList();
                 else
-                    return _ServiceList
+                    return FilteredServiceList
                         .OrderByDescending(item => Double.Parse(item.CostWithDiscount))
                         .ToList();
+
             }
             set { _ServiceList = value; }
         }
+        public MainWindow()
+        {
+            InitializeComponent();
+            this.DataContext = this;
+            ServiceList = Core.DB.Service.ToList();
+        }
+        private void ExitButton_Click(object sender, RoutedEventArgs e)
+        {
+            Application.Current.Shutdown();
+        }
 
-            private void DataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
-            {
 
-            }
         private Boolean _IsAdminMode = false;
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -126,8 +82,9 @@ namespace AutoService6aton
                 if (IsAdminMode) return "Выйти из режима\nАдминистратора";
                 return "Войти в режим\nАдминистратора";
             }
-
         }
+
+
         private void AdminButton_Click(object sender, RoutedEventArgs e)
         {
             // если мы уже в режиме Администратора, то выходим из него 
@@ -144,6 +101,8 @@ namespace AutoService6aton
                 }
             }
         }
+
+
         public string AdminVisibility
         {
             get
@@ -169,6 +128,58 @@ namespace AutoService6aton
         {
             SortPriceAscending = (sender as RadioButton).Tag.ToString() == "1";
         }
-    }
-    }
 
+
+        private List<Tuple<string, double, double>> FilterByDiscountValuesList =
+        new List<Tuple<string, double, double>>() {
+        Tuple.Create("Все записи", 0d, 1d),
+        Tuple.Create("от 0% до 5%", 0d, 0.05d),
+        Tuple.Create("от 5% до 15%", 0.05d, 0.15d),
+        Tuple.Create("от 15% до 30%", 0.15d, 0.3d),
+        Tuple.Create("от 30% до 70%", 0.3d, 0.7d),
+        Tuple.Create("от 70% до 100%", 0.7d, 1d)
+        };
+
+        public List<string> FilterByDiscountNamesList
+        {
+            get
+            {
+                return FilterByDiscountValuesList
+                    .Select(item => item.Item1)
+                    .ToList();
+            }
+        }
+
+        private Tuple<double, double> _CurrentDiscountFilter = Tuple.Create(double.MinValue, double.MaxValue);
+
+        public Tuple<double, double> CurrentDiscountFilter
+        {
+            get
+            {
+                return _CurrentDiscountFilter;
+            }
+            set
+            {
+                _CurrentDiscountFilter = value;
+                if (PropertyChanged != null)
+                {
+                    // при изменении фильтра список перерисовывается
+                    PropertyChanged(this, new PropertyChangedEventArgs("ServiceList"));
+                }
+            }
+        }
+
+        private void DiscountFilterComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            CurrentDiscountFilter = Tuple.Create(
+                FilterByDiscountValuesList[DiscountFilterComboBox.SelectedIndex].Item2,
+                FilterByDiscountValuesList[DiscountFilterComboBox.SelectedIndex].Item3
+            );
+        }
+
+        private void DataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+        }
+    }
+}
