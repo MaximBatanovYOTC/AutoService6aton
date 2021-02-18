@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AutoService6aton.windows;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -13,7 +14,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using AutoService6aton.windows;
+
 
 namespace AutoService6aton
 {
@@ -33,8 +34,6 @@ namespace AutoService6aton
             Application.Current.Shutdown();
         }
         private List<Service> _ServiceList;
-
-
         public List<Service> ServiceList
         {
             get
@@ -246,11 +245,6 @@ namespace AutoService6aton
 
             // перечитываем изменившийся список, не забывая в сеттере вызвать PropertyChanged
             ServiceList = Core.DB.Service.ToList();
-        }
-
-        private void MainDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-
         }
     }
 }
