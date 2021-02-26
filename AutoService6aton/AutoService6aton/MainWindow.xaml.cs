@@ -1,5 +1,4 @@
-﻿using AutoService6aton.windows;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -14,10 +13,12 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-
+using AutoService6aton.windows;
 
 namespace AutoService6aton
 {
+  
+
     /// <summary>
     /// Логика взаимодействия для MainWindow.xaml
     /// </summary>
@@ -29,11 +30,14 @@ namespace AutoService6aton
             this.DataContext = this;
             ServiceList = Core.DB.Service.ToList();
         }
+
         private void ExitButton_Click(object sender, RoutedEventArgs e)
         {
             Application.Current.Shutdown();
         }
         private List<Service> _ServiceList;
+
+
         public List<Service> ServiceList
         {
             get
@@ -149,6 +153,7 @@ namespace AutoService6aton
         private List<Tuple<string, double, double>> FilterByDiscountValuesList =
             new List<Tuple<string, double, double>>()
             {
+
                 Tuple.Create("Все записи", 0d, 1d),
                 Tuple.Create("от 0% до 5%", 0d, 0.05d),
                 Tuple.Create("от 5% до 15%", 0.05d, 0.15d),
@@ -245,6 +250,39 @@ namespace AutoService6aton
 
             // перечитываем изменившийся список, не забывая в сеттере вызвать PropertyChanged
             ServiceList = Core.DB.Service.ToList();
+        }
+        private void EditButton_Click(object sender, RoutedEventArgs e)
+        {
+            var SelectedService = MainDataGrid.SelectedItem as Service;
+            var EditServiceWindow = new windows.ServiceWindow(SelectedService);
+            if ((bool)EditServiceWindow.ShowDialog())
+            {
+                // при успешном завершении не забываем перерисовать список услуг
+                PropertyChanged(this, new PropertyChangedEventArgs("ServiceList"));
+                // и еще счетчики - их добавьте сами
+            }
+        }
+        private void AddService_Click(object sender, RoutedEventArgs e)
+        {
+            // создаем новую услугу
+            var NewService = new Service();
+
+            var NewServiceWindow = new windows.ServiceWindow(NewService);
+            if ((bool)NewServiceWindow.ShowDialog())
+            {
+                // список услуг нужно перечитать с сервера
+                ServiceList = Core.DB.Service.ToList();
+                PropertyChanged(this, new PropertyChangedEventArgs("FilteredProductsCount"));
+                PropertyChanged(this, new PropertyChangedEventArgs("ProductsCount"));
+            }
+        }
+
+        private void SubscrideButton_Click(object sender, RoutedEventArgs e)
+        {
+            var SelectedService = MainDataGrid.SelectedItem as Service;
+            var SubscrideServiceWindow = new windows.ClientServiceWindow(SelectedService);
+            SubscrideServiceWindow.ShowDialog();
+
         }
     }
 }
