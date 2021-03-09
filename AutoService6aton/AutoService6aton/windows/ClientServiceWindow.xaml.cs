@@ -100,14 +100,15 @@ namespace AutoService6aton.windows
 
             // у нас нет задачи редактировать записи на услуги, поэтому 
             // в окне всегда создаем новую услугу
-            CurrentClientService = new ClientService
-            {
-                Service = selected,
+            CurrentClientService = new ClientService();
+            CurrentClientService.Service = selected;
 
-                // время записи устанавливаем текущее, чтобы меньше было править
-                StartTime = DateTime.Now
-            };
+            // время записи устанавливаем текущее, чтобы меньше было править
+            CurrentClientService.StartTime = DateTime.Now;
         }
+
+
+
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
 
