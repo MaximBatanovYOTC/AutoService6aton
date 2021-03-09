@@ -51,7 +51,10 @@ namespace AutoService6aton.windows
                 // перед присвоением пути к картинке обрезаем начало строки, т.к. диалог возвращает полный путь
                 // (тут конечно еще надо проверить есть ли в начале Environment.CurrentDirectory)
                 CurrentService.MainImagePath = GetImageDialog.FileName.Substring(Environment.CurrentDirectory.Length + 1);
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("CurrentService"));
+                if (PropertyChanged != null)
+                {
+                    PropertyChanged(this, new PropertyChangedEventArgs("CurrentService"));
+                }
             }
         }
         private void SaveButton_Click(object sender, RoutedEventArgs e)
