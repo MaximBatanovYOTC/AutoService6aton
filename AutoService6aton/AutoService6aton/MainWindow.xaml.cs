@@ -17,7 +17,7 @@ using AutoService6aton.windows;
 
 namespace AutoService6aton
 {
-  
+
 
     /// <summary>
     /// Логика взаимодействия для MainWindow.xaml
@@ -62,6 +62,12 @@ namespace AutoService6aton
             set
             {
                 _ServiceList = value;
+                if (PropertyChanged != null)
+                {
+                    // при успешном завершении не забываем перерисовать список услуг
+                    PropertyChanged(this, new PropertyChangedEventArgs("ServiceList"));
+                    // и еще счетчики - их добавьте сами
+                }
             }
         }
         private Boolean _IsAdminMode = false;

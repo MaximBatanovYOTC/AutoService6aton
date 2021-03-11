@@ -4,17 +4,17 @@
 winexe
 C#
 .cs
-C:\I-31\AutoService6aton\AutoService6aton\AutoService6aton\obj\Debug\
+C:\Git\Autoservice\AutoMih\AutoService6aton\AutoService6aton\AutoService6aton\obj\Debug\
 AutoService6aton
 none
 false
 DEBUG;TRACE
-C:\I-31\AutoService6aton\AutoService6aton\AutoService6aton\App.xaml
+C:\Git\Autoservice\AutoMih\AutoService6aton\AutoService6aton\AutoService6aton\App.xaml
 42133937571
 3-1201762661
 241410390999
-18-208475134
+18-1878614026
 MainWindow.xaml;windows\ClientServiceWindow.xaml;windows\InputBoxWindow.xaml;windows\ServiceWindow.xaml;
 
-False
+True
 
